@@ -1,0 +1,57 @@
+work_dir: /data1/gty/2022_work_dir/AimCLR_v2_3views/ntu60_cv/top-4-20/pretext
+
+# feeder
+train_feeder: feeder.ntu_feeder.Feeder_triple
+train_feeder_args:
+  data_path: /data1/gty/action_dataset/ntu60_frame50/xview/train_position.npy
+  label_path: /data1/gty/action_dataset/ntu60_frame50/xview/train_label.pkl
+  shear_amplitude: 0.5
+  temperal_padding_ratio: 6
+  mmap: True
+  aug_method: '12345'
+
+# model
+model: net.aimclr_v2_3views.AimCLR_v2_3views
+model_args:
+  base_encoder: net.st_gcn.Model
+  pretrain: True
+  feature_dim: 128
+  queue_size: 32768
+  momentum: 0.999
+  Temperature: 0.07
+  mlp: True
+  in_channels: 3
+  hidden_channels: 16 # 1/4 x channels of standard stgcn
+  hidden_dim: 256
+  num_class: 60
+  dropout: 0.5
+  graph_args:
+    layout: 'ntu-rgb+d'
+    strategy: 'spatial'
+  edge_importance_weighting: True
+
+# optim
+nesterov: False
+weight_decay: 1e-4
+base_lr: 0.1
+optimizer: SGD
+step: [350]
+
+# training
+device: [4]
+batch_size: 128
+test_batch_size: 128
+num_epoch: 400
+start_epoch: 0
+stream: 'all'
+
+# cross training
+topk1: 4
+topk2: 20
+vote: 2
+mine_epoch: 150
+cross_epoch: 300
+
+# log
+save_interval: 5
+eval_interval: -1
